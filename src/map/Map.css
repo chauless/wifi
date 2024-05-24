@@ -94,17 +94,16 @@ body,
     width: 100%;
     padding: 10px;
     margin-top: 20px;
-    background-color: #4CAF50;
+    background: linear-gradient(to right, #4CAF50, #1e7721); /* Начальный градиент */
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: transform 0.7s ease, background 0.7s ease; /* Увеличили время анимации */
 }
 
 .modal-content button:hover {
-    background-color: #45a049;
+    background: linear-gradient(to right, #41d347, #1e8520); /* Конечный градиент */
+    transform: scale(1.05); /* Увеличиваем размер кнопки при наведении */
 }
-
-
-
 
