@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import L from 'leaflet';
-import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from "react-leaflet";
+import {MapContainer, Marker, Popup, TileLayer, useMapEvents} from "react-leaflet";
 import BasemapSelector from "../basemap/BasemapSelector";
 import './Map.css';
 import MapClickHandler from "./MapClickHandler";
-
+import {useOnline} from '@react-hooks-library/core'
 import 'leaflet/dist/leaflet.css';
 import MarkerFormModal from "./MarkerComponent";
 
@@ -36,6 +36,8 @@ interface MarkerData {
 }
 
 const MapComponent: React.FC = () => {
+    const isOnline = useOnline();
+
     const [state, setState] = useState({
         lat: 50.082,
         lng: 14.391,
@@ -46,7 +48,8 @@ const MapComponent: React.FC = () => {
         markerLat: 0,
         markerLng: 0,
         markerName: "",
-        markerDescription: ""
+        markerDescription: "",
+        isOnline: navigator.onLine
     });
 
     useEffect(() => {
@@ -60,11 +63,34 @@ const MapComponent: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        const handleOnlineStatus = () => {
+            setState((prevState) => ({
+                ...prevState,
+                isOnline: navigator.onLine
+            }));
+        };
+
+        window.addEventListener('online', handleOnlineStatus);
+        window.addEventListener('offline', handleOnlineStatus);
+
+        return () => {
+            window.removeEventListener('online', handleOnlineStatus);
+            window.removeEventListener('offline', handleOnlineStatus);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!state.isOnline) {
+            alert('Отсутствует подключение к интернету');
+        }
+    }, [state.isOnline]);
+
+    useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     console.log("Geolocation fetched: ", position);
-                    const { latitude, longitude } = position.coords;
+                    const {latitude, longitude} = position.coords;
                     const userMarker: MarkerData = {
                         name: "Your Location",
                         description: "You are here",
@@ -111,7 +137,7 @@ const MapComponent: React.FC = () => {
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setState((prevState) => ({
             ...prevState,
             [name]: value
@@ -120,7 +146,7 @@ const MapComponent: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const { markerLat, markerLng, markerName, markerDescription } = state;
+        const {markerLat, markerLng, markerName, markerDescription} = state;
         const newMarker: MarkerData = {
             name: markerName,
             description: markerDescription,
@@ -135,27 +161,34 @@ const MapComponent: React.FC = () => {
             markerDescription: ""
         }));
         localStorage.setItem('markers', JSON.stringify([...state.markers, newMarker]));
+
+        const audio = new Audio("/saveSound.mp3");
+        audio.play().then(r => console.log("Sound played"));
     };
 
     return (
         <>
-            <MapContainer center={[state.lat, state.lng]} zoom={state.zoom} scrollWheelZoom={true}>
-                <TileLayer url={basemapsDict[state.basemap]} />
-                <BasemapSelector basemap={state.basemap} onChange={onBMChange} />
-                <MapClickHandler state={state} setState={setState} />
-                {state.markers.map((marker, index) => (
-                    <Marker key={index} position={[marker.lat, marker.lng]} icon={marker.name === "Your Location" ? userLocationIcon : customIcon}>
-                        <Popup>
-                            <div>
-                                <h3>{marker.name}</h3>
-                                <p>{marker.description}</p>
-                                <p>Latitude: {marker.lat}</p>
-                                <p>Longitude: {marker.lng}</p>
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
-            </MapContainer>
+            {isOnline && (
+                <MapContainer center={[state.lat, state.lng]} zoom={state.zoom} scrollWheelZoom={true}>
+                    <TileLayer url={basemapsDict[state.basemap]}/>
+                    <BasemapSelector basemap={state.basemap} onChange={onBMChange}/>
+                    <MapClickHandler state={state} setState={setState}/>
+                    {state.markers.map((marker, index) => (
+                        <Marker key={index} position={[marker.lat, marker.lng]}
+                                icon={marker.name === "Your Location" ? userLocationIcon : customIcon}>
+                            <Popup>
+                                <div>
+                                    <h3>{marker.name}</h3>
+                                    <p>{marker.description}</p>
+                                    <p>Latitude: {marker.lat}</p>
+                                    <p>Longitude: {marker.lng}</p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    ))}
+                </MapContainer>
+            )}
+
             {state.showModal && (
                 <MarkerFormModal
                     state={state}

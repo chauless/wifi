@@ -24,6 +24,7 @@ body,
     border-radius: 4px;
     background-color: white;
 }
+
 .basemaps-container select {
     width: 200px;
     height: 20px;
@@ -107,3 +108,37 @@ body,
     transform: scale(1.05); /* Увеличиваем размер кнопки при наведении */
 }
 
+@media only screen and (max-width: 830px) {
+    #content {
+        display: flex;
+    }
+
+    #map {
+        width: 100%;
+        height: 60%;
+        overflow: hidden;
+        position: absolute;
+    }
+
+    #formContainer {
+        width: 100%;
+        height: 40%;
+        margin-left: 0;
+        position: fixed;
+        bottom: 0;
+    }
+
+    #form {
+        overflow: auto;
+        max-height: 98%;
+    }
+
+    #earthAnimation {
+        padding-top: 40px;
+        margin-bottom: 40px;
+    }
+
+    #formButton {
+        margin-top: 0;
+    }
+}
