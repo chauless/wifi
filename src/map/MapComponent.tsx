@@ -1,17 +1,26 @@
-// Обновленный компонент MapComponent
-
 import React, { useState, useEffect } from 'react';
 import L from 'leaflet';
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from "react-leaflet";
-import Basemap from "../basemap/Basemap";
+import BasemapSelector from "../basemap/BasemapSelector";
 import './Map.css';
+import MapClickHandler from "./MapClickHandler";
 
 import 'leaflet/dist/leaflet.css';
+import MarkerFormModal from "./MarkerComponent";
 
 L.Icon.Default.imagePath = "https://unpkg.com/leaflet@1.5.0/dist/images/";
 
 const customIcon = new L.Icon({
     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+const userLocationIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -50,6 +59,36 @@ const MapComponent: React.FC = () => {
         }
     }, []);
 
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    console.log("Geolocation fetched: ", position);
+                    const { latitude, longitude } = position.coords;
+                    const userMarker: MarkerData = {
+                        name: "Your Location",
+                        description: "You are here",
+                        lat: latitude,
+                        lng: longitude
+                    };
+                    setState((prevState) => ({
+                        ...prevState,
+                        lat: latitude,
+                        lng: longitude,
+                        zoom: 14,
+                        markers: [...prevState.markers, userMarker]
+                    }));
+                    localStorage.setItem('markers', JSON.stringify([...state.markers, userMarker]));
+                },
+                (error) => {
+                    console.error("Error fetching geolocation: ", error);
+                }
+            );
+        } else {
+            console.error("Geolocation is not supported by this browser.");
+        }
+    }, []);
+
     const onBMChange = (bm: string): void => {
         setState((prevState) => ({
             ...prevState,
@@ -62,21 +101,6 @@ const MapComponent: React.FC = () => {
         opnv: "https://tileserver.memomaps.de/tilegen/{z}/{x}/{y}.png",
         dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
         cycle: "https://dev.{s}.tile.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png"
-    };
-
-    const MapClickHandler = () => {
-        useMapEvents({
-            click: (e) => {
-                const { lat, lng } = e.latlng;
-                setState((prevState) => ({
-                    ...prevState,
-                    showModal: true,
-                    markerLat: lat,
-                    markerLng: lng
-                }));
-            }
-        });
-        return null;
     };
 
     const handleCloseModal = () => {
@@ -117,14 +141,10 @@ const MapComponent: React.FC = () => {
         <>
             <MapContainer center={[state.lat, state.lng]} zoom={state.zoom} scrollWheelZoom={true}>
                 <TileLayer url={basemapsDict[state.basemap]} />
-                <Basemap basemap={state.basemap} onChange={onBMChange} />
-                <MapClickHandler />
+                <BasemapSelector basemap={state.basemap} onChange={onBMChange} />
+                <MapClickHandler state={state} setState={setState} />
                 {state.markers.map((marker, index) => (
-                    <Marker
-                        key={index}
-                        position={[marker.lat, marker.lng]}
-                        icon={customIcon} // Используем разные иконки для активного и неактивного маркера
-                    >
+                    <Marker key={index} position={[marker.lat, marker.lng]} icon={marker.name === "Your Location" ? userLocationIcon : customIcon}>
                         <Popup>
                             <div>
                                 <h3>{marker.name}</h3>
@@ -137,26 +157,12 @@ const MapComponent: React.FC = () => {
                 ))}
             </MapContainer>
             {state.showModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <span className="close" onClick={handleCloseModal}>&times;</span>
-                        <p>Latitude: {state.markerLat}</p>
-                        <p>Longitude: {state.markerLng}</p>
-                        <form onSubmit={handleSubmit}>
-                            <label>
-                                WiFi Name:
-                                <input type="text" name="markerName" value={state.markerName} onChange={handleInputChange} />
-                            </label>
-                            <br />
-                            <label>
-                                Description:
-                                <textarea name="markerDescription" value={state.markerDescription} onChange={handleInputChange} />
-                            </label>
-                            <br />
-                            <button type="submit">Add WiFi Router</button>
-                        </form>
-                    </div>
-                </div>
+                <MarkerFormModal
+                    state={state}
+                    handleCloseModal={handleCloseModal}
+                    handleInputChange={handleInputChange}
+                    handleSubmit={handleSubmit}
+                />
             )}
         </>
     );

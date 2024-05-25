@@ -5,7 +5,7 @@ interface BasemapProps {
     onChange?: (basemap: string) => void;
 }
 
-class Basemap extends Component<BasemapProps> {
+class BasemapSelector extends Component<BasemapProps> {
     onChange = (e: ChangeEvent<HTMLSelectElement>): void => {
         const bm: string = e.currentTarget.value;
 
@@ -28,4 +28,4 @@ class Basemap extends Component<BasemapProps> {
     }
 }
 
-export default Basemap;
+export default BasemapSelector;
