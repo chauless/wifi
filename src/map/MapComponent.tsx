@@ -1,14 +1,15 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import L from 'leaflet';
-import {MapContainer, Marker, Popup, TileLayer, useMapEvents} from "react-leaflet";
-import BasemapSelector from "../basemap/BasemapSelector";
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import BasemapSelector from '../basemap/BasemapSelector';
 import './Map.css';
-import MapClickHandler from "./MapClickHandler";
-import {useOnline} from '@react-hooks-library/core'
+import MapClickHandler from './MapClickHandler';
+import { useOnline } from '@react-hooks-library/core';
 import 'leaflet/dist/leaflet.css';
-import MarkerFormModal from "./MarkerComponent";
+import MarkerFormModal from './MarkerComponent';
+import { db, collection, addDoc, getDocs } from './firebase';
 
-L.Icon.Default.imagePath = "https://unpkg.com/leaflet@1.5.0/dist/images/";
+L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.5.0/dist/images/';
 
 const customIcon = new L.Icon({
     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -16,7 +17,7 @@ const customIcon = new L.Icon({
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+    shadowSize: [41, 41],
 });
 
 const userLocationIcon = new L.Icon({
@@ -25,10 +26,11 @@ const userLocationIcon = new L.Icon({
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+    shadowSize: [41, 41],
 });
 
 interface MarkerData {
+    id?: string;
     name: string;
     description: string;
     lat: number;
@@ -47,26 +49,44 @@ const MapComponent: React.FC = () => {
         showModal: false,
         markerLat: 0,
         markerLng: 0,
-        markerName: "",
-        markerDescription: "",
-        isOnline: navigator.onLine
+        markerName: '',
+        markerDescription: '',
+        isOnline: navigator.onLine,
     });
+
+    useEffect(() => {
+        const fetchMarkers = async () => {
+            const querySnapshot = await getDocs(collection(db, 'markers'));
+            const markers = querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    name: data.name,
+                    description: data.description,
+                    lat: data.lat,
+                    lng: data.lng,
+                } as MarkerData;
+            });
+            setState(prevState => ({ ...prevState, markers }));
+        };
+        fetchMarkers();
+    }, []);
 
     useEffect(() => {
         const savedMarkers = localStorage.getItem('markers');
         if (savedMarkers) {
-            setState((prevState) => ({
+            setState(prevState => ({
                 ...prevState,
-                markers: JSON.parse(savedMarkers)
+                markers: JSON.parse(savedMarkers),
             }));
         }
     }, []);
 
     useEffect(() => {
         const handleOnlineStatus = () => {
-            setState((prevState) => ({
+            setState(prevState => ({
                 ...prevState,
-                isOnline: navigator.onLine
+                isOnline: navigator.onLine,
             }));
         };
 
@@ -88,94 +108,104 @@ const MapComponent: React.FC = () => {
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    console.log("Geolocation fetched: ", position);
-                    const {latitude, longitude} = position.coords;
+                position => {
+                    console.log('Geolocation fetched: ', position);
+                    const { latitude, longitude } = position.coords;
                     const userMarker: MarkerData = {
-                        name: "Your Location",
-                        description: "You are here",
+                        name: 'Your Location',
+                        description: 'You are here',
                         lat: latitude,
-                        lng: longitude
+                        lng: longitude,
                     };
-                    setState((prevState) => ({
+                    setState(prevState => ({
                         ...prevState,
                         lat: latitude,
                         lng: longitude,
                         zoom: 14,
-                        markers: [...prevState.markers, userMarker]
+                        markers: [...prevState.markers, userMarker],
                     }));
                     localStorage.setItem('markers', JSON.stringify([...state.markers, userMarker]));
                 },
-                (error) => {
-                    console.error("Error fetching geolocation: ", error);
+                error => {
+                    console.error('Error fetching geolocation: ', error);
                 }
             );
         } else {
-            console.error("Geolocation is not supported by this browser.");
+            console.error('Geolocation is not supported by this browser.');
         }
     }, []);
 
     const onBMChange = (bm: string): void => {
-        setState((prevState) => ({
+        setState(prevState => ({
             ...prevState,
-            basemap: bm
+            basemap: bm,
         }));
     };
 
     const basemapsDict: { [key: string]: string } = {
-        osm: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        opnv: "https://tileserver.memomaps.de/tilegen/{z}/{x}/{y}.png",
-        dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-        cycle: "https://dev.{s}.tile.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png"
+        osm: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        opnv: 'https://tileserver.memomaps.de/tilegen/{z}/{x}/{y}.png',
+        dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        cycle: 'https://dev.{s}.tile.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
     };
 
     const handleCloseModal = () => {
-        setState((prevState) => ({
+        setState(prevState => ({
             ...prevState,
             showModal: false,
         }));
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const {name, value} = e.target;
-        setState((prevState) => ({
+        const { name, value } = e.target;
+        setState(prevState => ({
             ...prevState,
-            [name]: value
+            [name]: value,
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const {markerLat, markerLng, markerName, markerDescription} = state;
+        const { markerLat, markerLng, markerName, markerDescription } = state;
         const newMarker: MarkerData = {
             name: markerName,
             description: markerDescription,
             lat: markerLat,
-            lng: markerLng
+            lng: markerLng,
         };
-        setState((prevState) => ({
-            ...prevState,
-            markers: [...prevState.markers, newMarker],
-            showModal: false,
-            markerName: "",
-            markerDescription: ""
-        }));
-        localStorage.setItem('markers', JSON.stringify([...state.markers, newMarker]));
 
-        const audio = new Audio("/saveSound.mp3");
-        audio.play().then(r => console.log("Sound played"));
+        // Save marker to Firebase
+        try {
+            await addDoc(collection(db, 'markers'), newMarker);
+            console.log('Document written with ID: ', newMarker.id);
+            setState(prevState => ({
+                ...prevState,
+                markers: [...prevState.markers, newMarker],
+                showModal: false,
+                markerName: '',
+                markerDescription: '',
+            }));
+
+            const audio = new Audio('/saveSound.mp3');
+            audio.play().then(r => console.log('Sound played'));
+        } catch (error) {
+            console.error('Error adding document: ', error);
+        }
     };
 
     return (
         <>
             {isOnline && (
                 <MapContainer center={[state.lat, state.lng]} zoom={state.zoom} scrollWheelZoom={true}>
-                    <TileLayer url={basemapsDict[state.basemap]}/>
-                    <BasemapSelector basemap={state.basemap} onChange={onBMChange}/>
-                    <MapClickHandler state={state} setState={setState}/>
+                    <TileLayer url={basemapsDict[state.basemap]} />
+                    <BasemapSelector basemap={state.basemap} onChange={onBMChange} />
+                    <MapClickHandler state={state} setState={setState} />
                     {state.markers.map((marker, index) => (
-                        <Marker key={index} position={[marker.lat, marker.lng]}
-                                icon={marker.name === "Your Location" ? userLocationIcon : customIcon}>
+                        <Marker
+                            key={index}
+                            position={[marker.lat, marker.lng]}
+                            icon={marker.name === 'Your Location' ? userLocationIcon : customIcon}
+                        >
                             <Popup>
                                 <div>
                                     <h3>{marker.name}</h3>

@@ -18,23 +18,6 @@ interface MarkerFormModalProps {
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
-interface MarkerFormModalProps {
-    state: {
-        lat: number;
-        lng: number;
-        zoom: number;
-        basemap: string;
-        showModal: boolean;
-        markerLat: number;
-        markerLng: number;
-        markerName: string;
-        markerDescription: string;
-    };
-    handleCloseModal: () => void;
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-}
-
 const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
                                                              state,
                                                              handleCloseModal,
