@@ -1,5 +1,5 @@
 import React from 'react';
-import './MarkerFormModal.css';
+import './css/MarkerFormModal.css';
 
 interface MarkerFormModalProps {
     state: {
@@ -34,22 +34,28 @@ const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
 
                 <img className="animation" src="/router.svg" alt="wifi icon"/>
 
-                <p>Latitude: {state.markerLat}</p>
-                <p>Longitude: {state.markerLng}</p>
                 <form onSubmit={handleSubmit}>
                     <label>
                         WiFi Name:
                         <input type="text" name="markerName" value={state.markerName} onChange={handleInputChange}/>
                     </label>
-                    <br/>
                     <label>
                         Description:
                         <textarea name="markerDescription" value={state.markerDescription}
                                   onChange={handleInputChange}/>
                     </label>
                     <br/>
+                    <label>
+                        Latitude:
+                        <input type="text" name="markerLat" value={state.markerLat} readOnly/>
+                    </label>
+                    <label>
+                        Longitude:
+                        <input type="text" name="markerLng" value={state.markerLng} readOnly/>
+                    </label>
                     <button type="submit">Add Wifi network</button>
                 </form>
+
             </div>
         </div>
     );

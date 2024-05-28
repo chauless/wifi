@@ -2,40 +2,16 @@ import React, { useState, useEffect } from 'react';
 import L from 'leaflet';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import BasemapSelector from '../basemap/BasemapSelector';
-import './Map.css';
+import './css/Map.css';
 import MapClickHandler from './MapClickHandler';
 import { useOnline } from '@react-hooks-library/core';
 import 'leaflet/dist/leaflet.css';
 import MarkerFormModal from './MarkerComponent';
-import { db, collection, addDoc, getDocs } from './firebase';
+import { db, collection, addDoc, getDocs } from './extras/firebase';
+import {MarkerData} from "./extras/types";
+import {customIcon, userLocationIcon} from "./extras/icons";
 
 L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.5.0/dist/images/';
-
-const customIcon = new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-});
-
-const userLocationIcon = new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-});
-
-interface MarkerData {
-    id?: string;
-    name: string;
-    description: string;
-    lat: number;
-    lng: number;
-}
 
 const MapComponent: React.FC = () => {
     const isOnline = useOnline();

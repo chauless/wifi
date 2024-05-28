@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import './map/css/index.css';
 import Map from './map/MapComponent';
 import reportWebVitals from './reportWebVitals';
 
