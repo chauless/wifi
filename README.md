@@ -1,46 +1,24 @@
-# Getting Started with Create React App
+# Wifi map
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Description
+The application provides users with an interactive map interface where they can view and interact with Wi-Fi network markers. Users will be able to add new Wi-Fi network markers by providing information such as the network name (SSID), description, and location coordinates. Additionally, users can view details of each Wi-Fi network marker by clicking on them, including the network name, description, latitude, and longitude.
 
-## Available Scripts
 
-In the project directory, you can run:
 
-### `npm start`
+## Procedure
+I worked with React and TypeScript with Firebase (as a database) and Leaflet (library for working with maps and markers), Geolocation API (for displaying user's location).
+I started by adding the map itself, the ability to add markers, then Firebase, validation and on down the list from the requirements.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Functional Requirements
+https://docs.google.com/spreadsheets/d/1W28eQlSWIuLf7h5u8ekX3n3sGgNZk4A4JYtHu_QXiFA/edit?usp=sharing
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Functionality description
+The app has one page that has a map on it. When you tap on the map, a window appears where you can add data for the label. The marks of all users appear on the map through Firebase. If a user allows access to geo-location, their location will be shown in blue on the map and will not be saved to the database.
 
-### `npm test`
+![image](https://github.com/chauless/wifi-map/assets/93679962/a415c377-f09e-4eec-9dad-448fb4364ca6)
+![image](https://github.com/chauless/wifi-map/assets/93679962/ce886ad7-56ca-4773-bd9b-213b9bddd8c2)
+![image](https://github.com/chauless/wifi-map/assets/93679962/10fb4892-25e9-48e3-b0e6-651ff7077655)
+![image](https://github.com/chauless/wifi-map/assets/93679962/f0787896-f18b-4cb5-9068-bcb24d7c01c1)
+![image](https://github.com/chauless/wifi-map/assets/93679962/f16140c3-47f2-4d3f-96fc-6d1dc064467b)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
