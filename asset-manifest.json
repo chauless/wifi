@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/wifi-map/static/css/main.396e6307.css",
+    "main.js": "/wifi-map/static/js/main.e03b0249.js",
+    "static/js/453.832ba076.chunk.js": "/wifi-map/static/js/453.832ba076.chunk.js",
+    "index.html": "/wifi-map/index.html",
+    "main.396e6307.css.map": "/wifi-map/static/css/main.396e6307.css.map",
+    "main.e03b0249.js.map": "/wifi-map/static/js/main.e03b0249.js.map",
+    "453.832ba076.chunk.js.map": "/wifi-map/static/js/453.832ba076.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.396e6307.css",
+    "static/js/main.e03b0249.js"
+  ]
+}
