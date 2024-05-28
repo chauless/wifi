@@ -78,13 +78,15 @@ const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
 
                 <form onSubmit={onSubmit}>
                     <label>
-                        WiFi Name:
-                        <input type="text" name="markerName" value={state.markerName} onChange={onInputChange}/>
+                        Wifi router name:
+                        <input type="text" name="markerName" placeholder={'Enter a name for the wifi network'} value={state.markerName} onChange={onInputChange}/>
                         {errors.markerName && <span className="error">{errors.markerName}</span>}
                     </label>
                     <label>
                         Description:
-                        <textarea name="markerDescription" value={state.markerDescription}
+                        <textarea name="markerDescription"
+                                  placeholder={'Enter a description, such as the wifi location or password'}
+                                  value={state.markerDescription}
                                   onChange={onInputChange}/>
                         {errors.markerDescription && <span className="error">{errors.markerDescription}</span>}
                     </label>
