@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './css/MarkerFormModal.css';
 
 interface MarkerFormModalProps {
@@ -22,8 +22,50 @@ const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
                                                              state,
                                                              handleCloseModal,
                                                              handleInputChange,
-                                                             handleSubmit
+                                                             handleSubmit,
                                                          }) => {
+    const [errors, setErrors] = useState({
+        markerName: '',
+        markerDescription: '',
+    });
+
+    const validateField = (name: string, value: string) => {
+        if (value.length < 2) {
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                [name]: 'Field must be at least 2 characters long',
+            }));
+        } else {
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                [name]: '',
+            }));
+        }
+    };
+
+    const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        validateField(name, value);
+        handleInputChange(e);
+    };
+
+    const validateForm = () => {
+        const { markerName, markerDescription } = state;
+        const newErrors = {
+            markerName: markerName.length < 2 ? 'Field must be at least 2 characters long' : '',
+            markerDescription: markerDescription.length < 2 ? 'Field must be at least 2 characters long' : '',
+        };
+        setErrors(newErrors);
+        return !newErrors.markerName && !newErrors.markerDescription;
+    };
+
+    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (validateForm()) {
+            handleSubmit(e);
+        }
+    };
+
     return (
         <div className="modal">
             <div className="modal-content">
@@ -34,15 +76,17 @@ const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
 
                 <img className="animation" src="/router.svg" alt="wifi icon"/>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={onSubmit}>
                     <label>
                         WiFi Name:
-                        <input type="text" name="markerName" value={state.markerName} onChange={handleInputChange}/>
+                        <input type="text" name="markerName" value={state.markerName} onChange={onInputChange}/>
+                        {errors.markerName && <span className="error">{errors.markerName}</span>}
                     </label>
                     <label>
                         Description:
                         <textarea name="markerDescription" value={state.markerDescription}
-                                  onChange={handleInputChange}/>
+                                  onChange={onInputChange}/>
+                        {errors.markerDescription && <span className="error">{errors.markerDescription}</span>}
                     </label>
                     <br/>
                     <label>
@@ -53,9 +97,10 @@ const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
                         Longitude:
                         <input type="text" name="markerLng" value={state.markerLng} readOnly/>
                     </label>
-                    <button type="submit">Add Wifi network</button>
+                    <button type="submit" disabled={!!errors.markerName || !!errors.markerDescription}>
+                        Add Wifi network
+                    </button>
                 </form>
-
             </div>
         </div>
     );
