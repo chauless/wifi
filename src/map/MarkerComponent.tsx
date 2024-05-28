@@ -24,11 +24,13 @@ const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
                                                              handleInputChange,
                                                              handleSubmit,
                                                          }) => {
+    // Local state for form errors
     const [errors, setErrors] = useState({
         markerName: '',
         markerDescription: '',
     });
 
+    // Validate form fields
     const validateField = (name: string, value: string) => {
         if (value.length < 2) {
             setErrors(prevErrors => ({
@@ -43,12 +45,14 @@ const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
         }
     };
 
+    // Handle input changes
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
         handleInputChange(e);
     };
 
+    // Validate form fields
     const validateForm = () => {
         const { markerName, markerDescription } = state;
         const newErrors = {
@@ -59,6 +63,7 @@ const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
         return !newErrors.markerName && !newErrors.markerDescription;
     };
 
+    // Handle form submission
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (validateForm()) {
@@ -70,10 +75,12 @@ const MarkerFormModal: React.FC<MarkerFormModalProps> = ({
         <div className="modal">
             <div className="modal-content">
                 <svg className="close" onClick={handleCloseModal} viewBox="0 0 24 24" width="24" height="24">
+                    {/* Close icon */}
                     <path fill="currentColor"
                           d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path>
                 </svg>
 
+                {/*Router animation*/}
                 <img className="animation" src="/router.svg" alt="wifi icon"/>
 
                 <form onSubmit={onSubmit}>

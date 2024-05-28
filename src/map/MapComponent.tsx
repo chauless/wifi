@@ -14,8 +14,10 @@ import {customIcon, userLocationIcon} from "./extras/icons";
 L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.5.0/dist/images/';
 
 const MapComponent: React.FC = () => {
+    // Check if user is online
     const isOnline = useOnline();
 
+    // Initialize state with default values
     const [state, setState] = useState({
         lat: 50.082,
         lng: 14.391,
@@ -30,6 +32,7 @@ const MapComponent: React.FC = () => {
         isOnline: navigator.onLine,
     });
 
+    // Fetch markers from Firebase when the component mounts
     useEffect(() => {
         const fetchMarkers = async () => {
             const querySnapshot = await getDocs(collection(db, 'markers'));
@@ -48,6 +51,7 @@ const MapComponent: React.FC = () => {
         fetchMarkers();
     }, []);
 
+    // Load saved markers from local storage when the component mounts
     useEffect(() => {
         const savedMarkers = localStorage.getItem('markers');
         if (savedMarkers) {
@@ -58,6 +62,7 @@ const MapComponent: React.FC = () => {
         }
     }, []);
 
+    // Update state with online status changes
     useEffect(() => {
         const handleOnlineStatus = () => {
             setState(prevState => ({
@@ -75,12 +80,14 @@ const MapComponent: React.FC = () => {
         };
     }, []);
 
+    // Alert the user if they are offline
     useEffect(() => {
         if (!state.isOnline) {
             alert('Отсутствует подключение к интернету');
         }
     }, [state.isOnline]);
 
+    // Get the user's current location
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -111,6 +118,7 @@ const MapComponent: React.FC = () => {
         }
     }, []);
 
+    // Handle basemap changes
     const onBMChange = (bm: string): void => {
         setState(prevState => ({
             ...prevState,
@@ -118,6 +126,7 @@ const MapComponent: React.FC = () => {
         }));
     };
 
+    // Basemaps dictionary
     const basemapsDict: { [key: string]: string } = {
         osm: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         opnv: 'https://tileserver.memomaps.de/tilegen/{z}/{x}/{y}.png',
@@ -125,6 +134,7 @@ const MapComponent: React.FC = () => {
         cycle: 'https://dev.{s}.tile.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
     };
 
+    // Handle modal open/close
     const handleCloseModal = () => {
         setState(prevState => ({
             ...prevState,
@@ -132,6 +142,7 @@ const MapComponent: React.FC = () => {
         }));
     };
 
+    // Handle input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setState(prevState => ({
@@ -140,6 +151,7 @@ const MapComponent: React.FC = () => {
         }));
     };
 
+    // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const { markerLat, markerLng, markerName, markerDescription } = state;
@@ -162,6 +174,7 @@ const MapComponent: React.FC = () => {
                 markerDescription: '',
             }));
 
+            // Play sound when marker is saved
             const audio = new Audio('/saveSound.mp3');
             audio.play().then(r => console.log('Sound played'));
         } catch (error) {
@@ -177,11 +190,13 @@ const MapComponent: React.FC = () => {
                     <BasemapSelector basemap={state.basemap} onChange={onBMChange} />
                     <MapClickHandler state={state} setState={setState} />
                     {state.markers.map((marker, index) => (
+                        // Display markers on the map
                         <Marker
                             key={index}
                             position={[marker.lat, marker.lng]}
                             icon={marker.name === 'Your Location' ? userLocationIcon : customIcon}
                         >
+                            {/*Popup with marker information*/}
                             <Popup>
                                 <div>
                                     <h3>{marker.name}</h3>
@@ -195,6 +210,7 @@ const MapComponent: React.FC = () => {
                 </MapContainer>
             )}
 
+            {/*Show modal form when user clicks on the map*/}
             {state.showModal && (
                 <MarkerFormModal
                     state={state}

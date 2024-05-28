@@ -5,7 +5,9 @@ interface BasemapProps {
     onChange?: (basemap: string) => void;
 }
 
+// BasemapSelector class component
 class BasemapSelector extends Component<BasemapProps> {
+    // Event handler for select element changes
     onChange = (e: ChangeEvent<HTMLSelectElement>): void => {
         const bm: string = e.currentTarget.value;
 
@@ -14,6 +16,7 @@ class BasemapSelector extends Component<BasemapProps> {
         }
     }
 
+    // Render method
     render(): ReactNode {
         return (
             <div className="basemaps-container">
